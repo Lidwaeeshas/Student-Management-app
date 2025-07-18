@@ -1,0 +1,256 @@
+import java.util.*;
+import java.io.*;
+class StudentDatabase {
+	static Map<StudentMetaData, Map<String, Float>> database = new HashMap<>();
+
+	static boolean studentExist(String name) {
+		for (Map.Entry <StudentMetaData, Map<String, Float>> m : database.entrySet()) {
+			if (name.equalsIgnoreCase(m.getKey().getName())) {
+				return true;
+			}
+		}
+		return false;
+	}
+
+	static boolean subjectExist(String subject, String name) {
+		for (Map.Entry<StudentMetaData, Map<String, Float>> m : database.entrySet()) {
+			if (m.getKey().getName().equalsIgnoreCase(name)) {
+				for (Map.Entry<String, Float> sb :  m.getValue().entrySet()) {
+					if (sb.getKey().equalsIgnoreCase(subject)) {
+						return true;
+					}
+				}
+			}
+		}
+		return false;
+	}
+
+	static void update(float score, String name, String subject) {
+		for (Map.Entry<StudentMetaData, Map<String, Float>> m : database.entrySet()) {
+			if (m.getKey().getName().equalsIgnoreCase(name)) {
+				for (Map.Entry<String, Float> up :  m.getValue().entrySet()) {
+					if (up.getKey().equalsIgnoreCase(subject)) {
+						m.getValue().put(up.getKey(), score) ;
+						return;
+					}
+				}
+			}
+		}
+	}
+	static void view() {
+
+		for (Map.Entry<StudentMetaData, Map<String, Float>> m : database.entrySet()) {
+
+			System.out.println("Name: " + m.getKey().getName() + "\tAge: " + m.getKey().getAge() + "\tLevel: " + m.getKey().getLevel());
+
+			for (Map.Entry<String, Float> sb : m.getValue().entrySet()) {
+				System.out.println("Subject: " + sb.getKey() + "\tScore: " + sb.getValue());
+			}
+
+			System.out.println();
+		}
+	}
+
+
+	static void remove(String name) {
+		if (studentExist(name)) {
+			Iterator<Map.Entry<StudentMetaData, Map<String, Float>>> it = database.entrySet().iterator();
+			String level = "";
+			while (it.hasNext()) {
+				Map.Entry<StudentMetaData, Map<String, Float>> m = it.next();
+				if (m.getKey().getName().equalsIgnoreCase(name)) {
+					level = m.getKey().getLevel();
+					it.remove();
+					break;
+				}
+			}
+			System.out.println("Successfully remove " + name + " from level " + level);
+		}
+	}
+
+	static void summary() {
+		int total_students = database.size();
+		String best_student = "";
+		float highest_mark = 0;
+		int failed_students = 0;
+		int passed_students = 0;
+
+		Iterator<Map.Entry<StudentMetaData, Map<String, Float>>> it = database.entrySet().iterator();
+
+		while (it.hasNext()) {
+			Map.Entry<StudentMetaData, Map<String, Float>> m = it.next();
+			float sum = 0;
+			for (Map.Entry<String, Float> mp : m.getValue().entrySet()) {
+				sum += mp.getValue();
+			}
+			if (highest_mark < sum) {
+				highest_mark = sum;
+				best_student = m.getKey().getName();
+			}
+			if (sum < 300) {
+				failed_students++;
+			} else {
+				passed_students++;
+			}
+		}
+		System.out.println("Total number of students: " + total_students + "\nBest student: " + best_student + "\nHighest score: " + highest_mark + "\nNumber of students passed: " + passed_students +
+						   "\nNumber of students failed: " + failed_students);
+	}
+
+
+
+
+}
+
+class StudentMetaData {
+
+	private String name;
+	private int age;
+	private String level;
+
+	StudentMetaData(String name, int age, String level) {
+		this.name = name;
+		this.age = age;
+		this.level = level;
+	}
+	public String getName() {
+		return name;
+	}
+	public int getAge() {
+		return age;
+	}
+	public String getLevel() {
+		return level;
+	}
+
+	public boolean equals(Object o) {
+		if (this == o)
+			return true;
+		if (o == null || getClass() != o.getClass())
+			return false;
+		StudentMetaData that = (StudentMetaData) o;
+		return age == that.age && name.equalsIgnoreCase(that.name) && level.equalsIgnoreCase(that.level);
+	}
+	
+	public int hashCode(){
+		return Objects.hash(age,name.toLowerCase(),level.toLowerCase());
+	}
+
+}
+
+
+public class Main {
+	public static void main(String[] args) {
+		Scanner input = new Scanner(System.in);
+		List<StudentMetaData> stu = new ArrayList<>();
+
+		int option;
+		while (true) {
+			System.out.print("_______Enter________\n\n1. To add a student\n2. To update a student score\n3. To delete a student\n4. To view students\n5. Summary\n6. Exit\n> ");
+			while (true) {
+				try {
+					option = input.nextInt();
+					input.nextLine();
+					break;
+				} catch (InputMismatchException e) {
+					System.out.println("Please enter a number");
+					input.nextLine();
+				}
+			}
+
+			switch (option) {
+			case 1:
+
+				System.out.println("Enter name");
+				String name = input.nextLine();
+				System.out.println("Enter age");
+				int age;
+				while (true) {
+					try {
+						age = input.nextInt();
+						input.nextLine();
+						break;
+					} catch (InputMismatchException e) {
+						System.out.println("Please enter a number");
+						input.nextLine();
+					}
+				}
+				System.out.println("Enter level");
+				String level = input.nextLine();
+				System.out.println("Enter the number of subjects taken");
+				int n;
+				while (true) {
+					try {
+						n = input.nextInt();
+						input.nextLine();
+						break;
+					} catch (InputMismatchException e) {
+						System.out.println("Please enter a number");
+						input.nextLine();
+					}
+				}
+				Map<String, Float> sub = new HashMap<>();
+				for (int i = 0; i < n; i++) {
+					System.out.println("Enter the subject name: ");
+					String subject = input.nextLine();
+					System.out.println("Enter score: ");
+					float score = 0.0f;
+					while (true) {
+						try {
+							score = input.nextFloat();
+							input.nextLine();
+							break;
+						} catch (InputMismatchException e) {
+							System.out.println("Please enter a number");
+							input.nextLine();
+						}
+					}
+					sub.put(subject, score);
+				}
+
+
+				StudentDatabase.database.put(new StudentMetaData(name, age, level), sub);
+				System.out.println("Student data uploaded successfully ✅");
+				break;
+			case 2:
+				System.out.println("Enter the name of the student you want to update: ");
+				String studentName = input.nextLine();
+				if (StudentDatabase.studentExist(studentName)) {
+					System.out.println("Enter the subject name: ");
+					String subject = input.nextLine();
+					if (StudentDatabase.subjectExist(subject, studentName)) {
+						System.out.println("Enter the new score: ");
+						float score = input.nextFloat();
+						StudentDatabase.update(score, studentName, subject);
+						input.nextLine();
+					} else {
+						System.out.println("No record found");
+					}
+				} else {
+					System.out.println("No record found");
+				}
+				break;
+			case 3:
+				System.out.println("Enter name: ");
+				String nameToDelete = input.nextLine();
+				if (StudentDatabase.studentExist(nameToDelete)) {
+					StudentDatabase.remove(nameToDelete);
+				} else {
+					System.out.println("No record found");
+				}
+				break;
+			case 4:
+				StudentDatabase.view();
+				break;
+			case 5:
+				StudentDatabase.summary();
+				break;
+			case 6:
+				System.out.println("Closed successfully");
+				return;
+			}
+		}
+
+
+	}
+}
